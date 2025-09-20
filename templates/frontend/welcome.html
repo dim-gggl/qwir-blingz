@@ -1,0 +1,168 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Qwir Blingz – Welcome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            grotesk: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            night: '#0F172A',
+            nebula: '#7C3AED',
+            starlight: '#ECFEFF',
+            candy: '#F472B6',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Space Grotesk', sans-serif; }
+    .overlay-hidden { display: none; }
+  </style>
+</head>
+<body class="h-full text-starlight">
+  <div id="welcome-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-night/95">
+    <div class="mx-4 max-w-2xl rounded-3xl border border-amber-300/40 bg-slate-900/80 p-10 text-center shadow-[0_0_50px_rgba(124,58,237,0.6)] backdrop-blur">
+      <h1 class="text-4xl font-bold text-candy">Cosmic hello, glitter comet ✨</h1>
+      <p class="mt-6 text-lg text-slate-200">
+        Welcome to <span class="font-semibold text-amber-200">Qwir Blingz</span> — the queer solar system where trans futures, sex worker brilliance,
+        disabled joy, Black + brown radiance, and every so-called misfit reroute the cosmos.
+        Hydrate, breathe, and choose your vibe. We run on consent, memes, and revolutionary softness. Don’t worry: TERFs get launched into a black hole.
+      </p>
+      <button id="enter-button" class="mt-8 rounded-full bg-candy px-6 py-2 text-night shadow-lg shadow-candy/40 transition hover:bg-amber-200 hover:text-night">
+        Step into the Qwirverse
+      </button>
+    </div>
+  </div>
+
+  <main class="min-h-screen bg-gradient-to-br from-night via-purple-900 to-slate-900">
+    <div class="mx-auto flex min-h-screen max-w-5xl flex-col gap-10 px-6 py-16 lg:flex-row">
+      <section class="w-full rounded-3xl border border-white/10 bg-slate-900/70 p-8 shadow-2xl shadow-purple-900/40 backdrop-blur lg:w-1/2">
+        <h2 class="text-3xl font-semibold text-amber-200">Login</h2>
+        <form method="post" action="{{ login_url }}" class="mt-6 space-y-4">
+          {% csrf_token %}
+          {% for field in login_form %}
+            <div>
+              {{ field }}
+              {% if field.errors %}
+                <p class="mt-1 text-sm text-red-400">{{ field.errors|striptags }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+          <button type="submit" class="w-full rounded-md bg-amber-300 px-4 py-2 font-semibold text-night transition hover:bg-white">
+            Beam me up
+          </button>
+        </form>
+
+        <div class="mt-10 border-t border-white/10 pt-8">
+          <h3 class="text-2xl font-semibold text-candy">Create your orbit</h3>
+          <form method="post" action="{{ signup_url }}" class="mt-6 space-y-4">
+            {% csrf_token %}
+            {% for field in registration_form %}
+              <div>
+                {{ field }}
+                {% if field.errors %}
+                  <p class="mt-1 text-sm text-red-400">{{ field.errors|striptags }}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+            {% if registration_form.non_field_errors %}
+              <p class="text-sm text-red-400">{{ registration_form.non_field_errors }}</p>
+            {% endif %}
+            <button type="submit" class="w-full rounded-md border border-candy px-4 py-2 font-semibold text-candy transition hover:bg-candy hover:text-night">
+              Craft my planet
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section class="w-full rounded-3xl border border-white/10 bg-slate-900/70 p-8 shadow-2xl shadow-purple-900/40 backdrop-blur lg:w-1/2">
+        <div class="flex items-center justify-between">
+          <h2 class="text-3xl font-semibold text-amber-200">Random Queer Film</h2>
+          <button id="refresh-film" class="rounded-full border border-amber-200 px-3 py-1 text-sm text-amber-200 transition hover:bg-amber-200 hover:text-night">
+            Shuffle
+          </button>
+        </div>
+        <div id="film-card" class="mt-6 space-y-4">
+          {% include "frontend/welcome_film_card.html" with movie=random_movie %}
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const overlay = document.getElementById('welcome-overlay');
+    const enterBtn = document.getElementById('enter-button');
+    if (sessionStorage.getItem('qwir_overlay_dismissed') === 'true') {
+      overlay.classList.add('overlay-hidden');
+    }
+    enterBtn.addEventListener('click', () => {
+      overlay.classList.add('overlay-hidden');
+      sessionStorage.setItem('qwir_overlay_dismissed', 'true');
+    });
+
+    const refreshButton = document.getElementById('refresh-film');
+    const filmCard = document.getElementById('film-card');
+
+    async function refreshFilm() {
+      refreshButton.disabled = true;
+      refreshButton.textContent = 'Summoning...';
+      try {
+        const response = await fetch('/api/teasers/queer-film/');
+        if (!response.ok) throw new Error('Unavailable');
+        const data = await response.json();
+        filmCard.innerHTML = renderFilmCard(data);
+      } catch (e) {
+        filmCard.innerHTML = `<p class="text-sm text-red-300">No cosmic reels right now. Try again in a bit.</p>`;
+      } finally {
+        refreshButton.disabled = false;
+        refreshButton.textContent = 'Shuffle';
+      }
+    }
+
+    function renderFilmCard(movie) {
+      if (!movie) {
+        return '<p class="text-sm text-slate-300">No film found. Try again soon.</p>';
+      }
+      const originalTitle = movie.original_title ? `<p class="text-sm text-slate-200 italic">${movie.original_title}</p>` : '';
+      const meta = [movie.origin_country, movie.original_language ? movie.original_language.toUpperCase() : null, movie.release_year].filter(Boolean).join(' • ');
+      const rating = movie.rating ? `<span class="rounded bg-amber-200/20 px-2 py-1 text-sm text-amber-200">★ ${movie.rating.toFixed(1)} (${movie.vote_count || 0})</span>` : '';
+      const directors = movie.directors && movie.directors.length ? `<p class="text-sm text-slate-200"><span class="font-semibold text-candy">${movie.directors.length > 1 ? 'Directors' : 'Director'}:</span> ${movie.directors.join(', ')}</p>` : '';
+      const cast = movie.cast && movie.cast.length ? `<p class="text-sm text-slate-200"><span class="font-semibold text-candy">Cast:</span> ${movie.cast.join(', ')}</p>` : '';
+      const poster = movie.poster_url ? `<img src="${movie.poster_url}" alt="Poster of ${movie.title}" class="h-72 w-full rounded-lg object-cover shadow-lg" />` : '';
+      const tmdbLink = movie.tmdb_url ? `<a href="${movie.tmdb_url}" target="_blank" rel="noopener" class="text-sm text-amber-200 underline">TMDb</a>` : '';
+      const imdbLink = movie.imdb_url ? `<a href="${movie.imdb_url}" target="_blank" rel="noopener" class="text-sm text-amber-200 underline">IMDb</a>` : '';
+      const links = [tmdbLink, imdbLink].filter(Boolean).join(' • ');
+
+      return `
+        <article class="space-y-4">
+          ${poster}
+          <div>
+            <h3 class="text-2xl font-semibold text-amber-200">${movie.title || 'Untitled queer gem'}</h3>
+            ${originalTitle}
+            ${meta ? `<p class="text-sm text-slate-200">${meta}</p>` : ''}
+            ${rating}
+            ${directors}
+            ${cast}
+            <p class="text-sm text-slate-100">${movie.overview || 'No synopsis found, but trust it is fab.'}</p>
+            ${links ? `<p class="pt-2 text-sm text-slate-300">${links}</p>` : ''}
+          </div>
+        </article>
+      `;
+    }
+
+    refreshButton.addEventListener('click', refreshFilm);
+  </script>
+</body>
+</html>
