@@ -1,7 +1,5 @@
 """Utilities for persisting planet builder state."""
 
-from __future__ import annotations
-
 from typing import Optional
 
 from django.contrib.auth import get_user_model

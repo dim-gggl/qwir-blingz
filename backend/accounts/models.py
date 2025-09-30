@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser

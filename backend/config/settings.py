@@ -1,7 +1,4 @@
 """Django settings for the Qwir Blingz project."""
-
-from __future__ import annotations
-
 import os
 from pathlib import Path
 
@@ -129,4 +126,5 @@ TMDB_CONFIG = {
     "API_KEY": os.environ.get("TMDB_API_KEY", ""),
     "LANGUAGE": os.environ.get("TMDB_LANGUAGE", "fr-FR"),
     "TIMEOUT": float(os.environ.get("TMDB_TIMEOUT", "10")),
+    "DEFAULT_BASE_URL": os.environ.get("TMDB_DEFAULT_BASE_URL", "https://api.themoviedb.org/3"),
 }

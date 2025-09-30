@@ -1,7 +1,5 @@
 """Media catalog services for TMDb-powered queer film discovery."""
 
-from __future__ import annotations
-
 import logging
 from contextlib import nullcontext
 from dataclasses import dataclass

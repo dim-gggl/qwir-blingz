@@ -3,8 +3,6 @@ TMDb Keywords mapping based on previous experiments.
 Contains comprehensive keyword IDs for LGBT+ themes.
 """
 
-from __future__ import annotations
-
 from typing import Dict, List, Optional
 
 # Complete keyword mapping from previous experiments
@@ -95,7 +93,6 @@ TMDB_KEYWORDS = {
 
     # Gender themes
     "gender": 34214,
-    "intersex-gender-affirmation-surgery": 273188,
     "gender-identity": 210039,
     "genderfluid": 281283,
     "genderqueer": 266529,
@@ -108,6 +105,7 @@ TMDB_KEYWORDS = {
     "intersex": 240109,
     "intersex-child": 257264,
     "intersexuality": 9331,
+    "intersex-gender-affirmation-surgery": 273188,
 
     # LGBT general
     "lgbt": 158718,

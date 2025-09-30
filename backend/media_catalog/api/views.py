@@ -1,7 +1,5 @@
 """REST API endpoints for queer-forward media discovery."""
 
-from __future__ import annotations
-
 from django.db.models import Count, QuerySet
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _

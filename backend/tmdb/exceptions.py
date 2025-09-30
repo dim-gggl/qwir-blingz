@@ -1,8 +1,5 @@
 """Custom exceptions for TMDb interactions."""
 
-from __future__ import annotations
-
-
 class TmdbError(RuntimeError):
     """Base error for TMDb client issues."""
 

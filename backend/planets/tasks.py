@@ -1,7 +1,5 @@
 """Celery task stubs for planet generation."""
 
-from __future__ import annotations
-
 import logging
 from typing import Optional
 

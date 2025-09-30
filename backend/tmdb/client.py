@@ -1,11 +1,11 @@
 """Low-level TMDb client utilities."""
 
-from __future__ import annotations
-
 import logging
 from typing import Any, Dict, Optional
 
 import httpx
+
+from config.settings import TMDB_CONFIG as settings
 
 from .exceptions import (
     TmdbAuthorizationError,
@@ -26,15 +26,15 @@ class TmdbClient:
     endpoints we need.
     """
 
-    DEFAULT_BASE_URL = "https://api.themoviedb.org/3"
+    
 
     def __init__(
         self,
-        api_key: str,
+        api_key: str = settings["API_KEY"],
         *,
-        base_url: str = DEFAULT_BASE_URL,
-        timeout: float = 10.0,
-        default_language: str = "en-US",
+        base_url: str = settings["DEFAULT_BASE_URL"],
+        timeout: float = settings["TIMEOUT"],
+        default_language: str = settings["LANGUAGE"],
         client: Optional[httpx.Client] = None,
     ) -> None:
         if not api_key:

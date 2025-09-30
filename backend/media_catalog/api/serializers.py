@@ -1,7 +1,5 @@
 """Serializers for media catalog API endpoints."""
 
-from __future__ import annotations
-
 from typing import Optional
 from rest_framework import serializers
 

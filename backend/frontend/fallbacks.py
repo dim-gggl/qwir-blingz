@@ -1,7 +1,5 @@
 """Curated fallback data for welcome page and feed surfaces."""
 
-from __future__ import annotations
-
 from typing import Dict, Sequence
 
 FALLBACK_QUEER_MOVIES: Sequence[dict] = (

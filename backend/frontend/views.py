@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.middleware.csrf import get_token

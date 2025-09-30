@@ -7,11 +7,11 @@ Qwir Blingz is a sharing-first universe built with and for LGBTQIA++, sex worker
 Core Django code sits in `backend/`, with apps for `accounts`, `planets`, `media_catalog`, `tmdb`, and settings under `backend/config`. REST interfaces live in `backend/planets/api/`. TMDb helpers reside in `backend/tmdb`. Templates, Tailwind/Shadcn assets, and shared static files live in root `templates/` and `static/`, with the front-end scaffold evolving in `backend/frontend`. Architectural notes and domain briefs are under `docs/architecture/`—keep them current when behaviors shift.
 
 ## Build, Test, and Development Commands
-- `cd backend && uv venv --python 3.12` creates the project virtualenv.
+- `cd backend && uv venv` creates the project virtualenv.
 - `source .venv/bin/activate && uv pip sync requirements/base.txt` installs locked dependencies.
-- `python manage.py migrate` applies schema updates.
-- `python manage.py runserver` boots local development.
-- `python manage.py test planets.tests.test_serializers planets.tests.test_views` runs the active suite; add modules as coverage grows.
+- `uv run manage.py migrate` applies schema updates.
+- `uv run manage.py runserver` boots local development.
+- `uv run manage.py test planets.tests.test_serializers planets.tests.test_views` runs the active suite; add modules as coverage grows.
 
 ## Coding Style & Naming Conventions
 Stick to 4-space indentation, type hints where reasonable, and Django naming norms (models in PascalCase, helpers snake_case, URL names hyphenated like `planet-builder-start`). Keep services and serializers slim; push reusable prompts/config into dedicated modules (`backend/planets/services/builder.py`). When styling front-end templates, use strictly Tailwind utility classes and more specifically Shadcn component patterns for consistency and accessibility.
