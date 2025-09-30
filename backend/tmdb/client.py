@@ -44,7 +44,20 @@ class TmdbClient:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.default_language = default_language
-        self._client = client or httpx.Client(base_url=self.base_url, timeout=self.timeout)
+
+        # Detect if this is a Bearer token (JWT format) or standard API key
+        self._is_bearer_token = api_key.startswith("eyJ") and api_key.count(".") >= 2
+
+        headers = {}
+        if self._is_bearer_token:
+            headers["Authorization"] = f"Bearer {api_key}"
+            headers["accept"] = "application/json"
+
+        self._client = client or httpx.Client(
+            base_url=self.base_url,
+            timeout=self.timeout,
+            headers=headers
+        )
         self._owns_client = client is None
 
     # Context manager helpers so callers can use `with TmdbClient(...)` when needed.
@@ -66,10 +79,12 @@ class TmdbClient:
         *,
         params: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        query = {
-            "api_key": self.api_key,
-            "language": self.default_language,
-        }
+        query = {"language": self.default_language}
+
+        # Only add api_key to query params if we're not using Bearer token
+        if not self._is_bearer_token:
+            query["api_key"] = self.api_key
+
         if params:
             query.update({key: value for key, value in params.items() if value is not None})
 

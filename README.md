@@ -14,7 +14,7 @@ Community-driven universe celebrating LGBTQIA++ lives, centering sharing, planet
 ## Development
 ```bash
 cd backend
-python3 -m venv .venv  # Python 3.12 recommended
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements/base.txt
 python manage.py migrate

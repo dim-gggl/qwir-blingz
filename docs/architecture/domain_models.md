@@ -15,9 +15,11 @@
 - `media_catalog.IdentityTag`: global identity/thematic tags optionally mapped to TMDb keyword IDs for generator alignment.
 - `media_catalog.MediaItem`: TMDb-backed film/series metadata snapshot with optional identity tag associations.
 - `media_catalog.MediaList`: curated or dynamic (keyword-driven) collections with visibility controls and optional cover art.
+- `/api/media-lists/` exposes generation, refresh, and privacy toggles for these collections so members can share public or unlisted queer watchlists.
 - `media_catalog.MediaListItem`: ordering and annotations for items inside a list.
 
 ## Integration Hooks
 - TMDb service layer (`backend/tmdb`) feeds `MediaItem` and `MediaList` generation pipelines.
+ - Member feed et pages thématiques rendent des carrousels et sections enrichies par `IdentityTag`.
 - Trigger topics link to onboarding flows for safety configuration.
 - Planets and media lists will surface on member profile pages with privacy-respecting toggles.

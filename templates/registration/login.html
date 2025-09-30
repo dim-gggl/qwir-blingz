@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-950">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connexion - Qwir Blingz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            grotesk: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            night: '#07101B',
+            nebula: '#D65D3A',
+            starlight: '#FFFEF1',
+            candy: '#29D9C0',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Space Grotesk', sans-serif; }
+  </style>
+</head>
+<body class="h-full text-starlight">
+  <main class="min-h-screen bg-gradient-to-br from-night via-purple-900 to-slate-900 flex items-center justify-center px-6">
+    <div class="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/70 p-8 shadow-2xl shadow-purple-900/40 backdrop-blur">
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-semibold text-amber-200">Connexion</h1>
+        <p class="text-sm text-slate-300 mt-2">Accédez à votre galaxie partageuse</p>
+      </div>
+
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="rounded-md bg-red-900/20 border border-red-400 p-3">
+            {% for error in form.non_field_errors %}
+              <p class="text-sm text-red-400">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="space-y-4">
+          <div>
+            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-starlight mb-1">
+              {{ form.username.label }}
+            </label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              {% for error in form.username.errors %}
+                <p class="mt-1 text-sm text-red-400">{{ error }}</p>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-starlight mb-1">
+              {{ form.password.label }}
+            </label>
+            {{ form.password }}
+            {% if form.password.errors %}
+              {% for error in form.password.errors %}
+                <p class="mt-1 text-sm text-red-400">{{ error }}</p>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <button type="submit" class="w-full rounded-md bg-amber-300 px-4 py-3 font-semibold text-night transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-offset-2 focus:ring-offset-slate-900">
+          Se connecter
+        </button>
+      </form>
+
+      <div class="mt-6 text-center">
+        <a href="{% url 'frontend:welcome' %}" class="text-sm text-candy hover:text-amber-200 transition">
+          ← Retour à l'accueil
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    /* Style des champs de formulaire */
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.5rem;
+      color: #FFFEF1;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus {
+      outline: none;
+      border-color: #29D9C0;
+      box-shadow: 0 0 0 2px rgba(41, 217, 192, 0.2);
+    }
+
+    input[type="text"]::placeholder, input[type="password"]::placeholder {
+      color: rgba(226, 232, 240, 0.5);
+    }
+  </style>
+</body>
+</html>

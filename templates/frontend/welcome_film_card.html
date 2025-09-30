@@ -13,7 +13,7 @@
         {% if movie.origin_country %}{{ movie.origin_country }}{% endif %}
         {% if movie.origin_country and movie.original_language %} • {% endif %}
         {% if movie.original_language %}{{ movie.original_language|upper }}{% endif %}
-        {% if (movie.origin_country or movie.original_language) and movie.release_year %} • {% endif %}
+        {% if movie.origin_country or movie.original_language and movie.release_year %} • {% endif %}
         {% if movie.release_year %}{{ movie.release_year }}{% endif %}
       </p>
       {% endif %}
