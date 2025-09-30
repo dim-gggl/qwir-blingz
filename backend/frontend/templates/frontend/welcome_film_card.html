@@ -1,0 +1,43 @@
+{% if movie %}
+  <article class="space-y-4">
+    {% if movie.poster_url %}
+    <img src="{{ movie.poster_url }}" alt="Poster of {{ movie.title }}" class="h-72 w-full rounded-lg object-cover shadow-lg" />
+    {% endif %}
+    <div>
+      <h3 class="text-2xl font-semibold text-amber-200">{{ movie.title|default:"Untitled queer gem" }}</h3>
+      {% if movie.original_title %}
+      <p class="text-sm text-slate-200 italic">{{ movie.original_title }}</p>
+      {% endif %}
+      {% if movie.origin_country or movie.original_language or movie.release_year %}
+      <p class="text-sm text-slate-200">
+        {% if movie.origin_country %}{{ movie.origin_country }}{% endif %}
+        {% if movie.origin_country and movie.original_language %} • {% endif %}
+        {% if movie.original_language %}{{ movie.original_language|upper }}{% endif %}
+        {% if (movie.origin_country or movie.original_language) and movie.release_year %} • {% endif %}
+        {% if movie.release_year %}{{ movie.release_year }}{% endif %}
+      </p>
+      {% endif %}
+      {% if movie.rating %}
+      <span class="rounded bg-amber-200/20 px-2 py-1 text-sm text-amber-200">★ {{ movie.rating|floatformat:1 }} ({{ movie.vote_count|default:0 }})</span>
+      {% endif %}
+      {% if movie.directors %}
+      <p class="text-sm text-slate-200">
+        <span class="font-semibold text-candy">{% if movie.directors|length > 1 %}Directors{% else %}Director{% endif %}:</span>
+        {{ movie.directors|join:", " }}
+      </p>
+      {% endif %}
+      {% if movie.cast %}
+      <p class="text-sm text-slate-200"><span class="font-semibold text-candy">Cast:</span> {{ movie.cast|join:", " }}</p>
+      {% endif %}
+      <p class="text-sm text-slate-100">{{ movie.overview|default:"No synopsis found, but trust it is fab." }}</p>
+      {% if movie.tmdb_url or movie.imdb_url %}
+      <p class="pt-2 text-sm text-slate-300 space-x-2">
+        {% if movie.tmdb_url %}<a href="{{ movie.tmdb_url }}" target="_blank" rel="noopener" class="underline text-amber-200">TMDb</a>{% endif %}
+        {% if movie.imdb_url %}<a href="{{ movie.imdb_url }}" target="_blank" rel="noopener" class="underline text-amber-200">IMDb</a>{% endif %}
+      </p>
+      {% endif %}
+    </div>
+  </article>
+{% else %}
+  <p class="text-sm text-slate-300">No film found. Try again soon.</p>
+{% endif %}

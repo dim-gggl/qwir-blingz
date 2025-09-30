@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Qwir Blingz – Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            grotesk: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            night: '#0F172A',
+            nebula: '#7C3AED',
+            starlight: '#ECFEFF',
+            candy: '#F472B6',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Space Grotesk', sans-serif; }
+  </style>
+</head>
+<body class="h-full text-starlight">
+  <nav class="border-b border-white/10 bg-slate-900/80 backdrop-blur">
+    <div class="mx-auto max-w-5xl px-6 py-4">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-candy">Qwir Blingz</h1>
+        <div class="flex items-center gap-4">
+          <span class="text-slate-300">Welcome, {{ user.username }}!</span>
+          <a href="{% url 'logout' %}" class="rounded-md bg-amber-300 px-4 py-2 text-night font-medium hover:bg-white transition">
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="min-h-screen bg-gradient-to-br from-night via-purple-900 to-slate-900">
+    <div class="mx-auto max-w-4xl px-6 py-8">
+      <div class="rounded-3xl border border-white/10 bg-slate-900/70 p-8 shadow-2xl shadow-purple-900/40 backdrop-blur">
+        <h2 class="text-3xl font-semibold text-amber-200 mb-6">Your Cosmic Feed</h2>
+
+        <div class="space-y-6">
+          <div class="rounded-lg border border-white/20 bg-slate-800/50 p-6">
+            <h3 class="text-xl font-semibold text-candy mb-3">🎬 Welcome to the Qwirverse!</h3>
+            <p class="text-slate-200">
+              You've successfully entered the queer solar system! This is your feed where you'll see content,
+              connect with other cosmic beings, and explore the brilliance of queer media and community.
+            </p>
+            <p class="text-slate-300 text-sm mt-4">
+              More features coming soon: posts, interactions, media recommendations, and more cosmic goodness! ✨
+            </p>
+          </div>
+
+          <div class="rounded-lg border border-white/20 bg-slate-800/50 p-6">
+            <h3 class="text-lg font-semibold text-amber-200 mb-3">Profile Settings</h3>
+            <p class="text-slate-300 mb-4">Customize your cosmic presence and visibility preferences.</p>
+            <button class="rounded-md border border-candy px-4 py-2 text-candy hover:bg-candy hover:text-night transition">
+              Edit Profile (Coming Soon)
+            </button>
+          </div>
+
+          <div class="rounded-lg border border-white/20 bg-slate-800/50 p-6">
+            <h3 class="text-lg font-semibold text-amber-200 mb-3">Explore</h3>
+            <p class="text-slate-300 mb-4">Discover new queer media, connect with community, and find your cosmic crew.</p>
+            <div class="space-x-2">
+              <button class="rounded-md bg-nebula px-4 py-2 text-white hover:bg-purple-600 transition">
+                Browse Media (Coming Soon)
+              </button>
+              <button class="rounded-md border border-amber-200 px-4 py-2 text-amber-200 hover:bg-amber-200 hover:text-night transition">
+                Find Community (Coming Soon)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
