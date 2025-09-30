@@ -1,0 +1,331 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-950">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Qwir Blingz – Flux</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            grotesk: ['Space Grotesk', 'sans-serif'],
+          },
+          colors: {
+            night: '#07101B',
+            nebula: '#D65D3A',
+            starlight: '#FFFEF1',
+            candy: '#29D9C0',
+            plum: '#7C3AED',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Space Grotesk', sans-serif; }
+    .scrollbar-hidden::-webkit-scrollbar { display: none; }
+    .scrollbar-hidden { scrollbar-width: none; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-night via-purple-950 to-slate-900 text-starlight">
+  <header class="border-b border-white/10 bg-night/60 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-semibold text-amber-200">Bienvenue dans ta galaxie partageuse</h1>
+        <p class="text-sm text-slate-300">Mets en orbite des watchlists trans, queer, travailleuses du sexe, féministes radicales, et plus encore.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button type="button" id="refresh-all" class="rounded-full border border-candy/70 px-4 py-2 text-sm font-medium text-candy transition hover:bg-candy hover:text-night">
+          Raffraîchir tout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl space-y-12 px-6 py-10">
+    {% for carousel in carousels %}
+      <section class="space-y-4" data-carousel="{{ carousel.theme }}">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-semibold text-amber-200">{{ carousel.title }}</h2>
+            <p data-carousel-fallback class="text-xs uppercase tracking-wide text-rose-300 {% if not carousel.fallback %}hidden{% endif %}">
+              Mode offline – données de secours.
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <a href="{% url 'frontend:theme-detail' carousel.theme %}" class="rounded-full border border-white/20 px-3 py-1 text-xs uppercase tracking-wide text-white/80 transition hover:border-candy hover:text-candy">
+              Voir la constellation
+            </a>
+            <button type="button" class="rounded-full border border-amber-300 px-3 py-1 text-xs uppercase tracking-wide text-amber-200 transition hover:bg-amber-200 hover:text-night" data-carousel-refresh="{{ carousel.theme }}">
+              Raffraîchir
+            </button>
+          </div>
+        </div>
+
+        <div class="relative">
+          <button type="button" class="absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-night/70 p-2 text-sm text-white shadow-lg transition hover:bg-plum focus:outline-none" data-carousel-scroll="prev" aria-label="Précédent">
+            ◀
+          </button>
+          <div class="flex gap-4 overflow-x-auto scroll-smooth pb-4 pl-10 pr-10 scrollbar-hidden" data-carousel-track>
+            {% for item in carousel.items %}
+              <button type="button" class="relative w-60 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 text-left shadow-xl transition hover:-translate-y-1 hover:shadow-purple-900/40" data-modal-trigger data-theme="{{ carousel.theme }}" data-index="{{ forloop.counter0 }}">
+                {% if item.poster_url %}
+                  <img src="{{ item.poster_url }}" alt="Affiche de {{ item.title }}" class="h-80 w-full object-cover" />
+                {% else %}
+                  <div class="flex h-80 items-center justify-center bg-night/80 text-sm text-slate-400">
+                    Affiche manquante
+                  </div>
+                {% endif %}
+                <div class="space-y-2 p-4">
+                  <h3 class="text-lg font-semibold text-amber-100">{{ item.title }}</h3>
+                  {% if item.release_year or item.genres %}
+                    <p class="text-xs text-slate-300">{{ item.release_year }}{% if item.release_year and item.genres %} • {% endif %}{{ item.genres|join:", " }}</p>
+                  {% endif %}
+                  {% if item.rating %}
+                    <p class="text-xs text-amber-200">★ {{ item.rating|floatformat:1 }}{% if item.vote_count %} ({{ item.vote_count }}){% endif %}</p>
+                  {% endif %}
+                  <p class="line-clamp-3 text-xs text-slate-200">{{ item.overview }}</p>
+                </div>
+              </button>
+            {% empty %}
+              <div class="rounded-xl border border-white/10 bg-night/70 p-6 text-sm text-slate-300">Aucune recommandation disponible pour le moment.</div>
+            {% endfor %}
+          </div>
+          <button type="button" class="absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-night/70 p-2 text-sm text-white shadow-lg transition hover:bg-plum focus:outline-none" data-carousel-scroll="next" aria-label="Suivant">
+            ▶
+          </button>
+        </div>
+
+        {% with script_id="carousel-data-"|add:carousel.theme %}
+          {{ carousel|json_script:script_id }}
+        {% endwith %}
+      </section>
+    {% endfor %}
+  </main>
+
+  <div id="media-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-night/80 p-6 backdrop-blur" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="relative h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/10 bg-night/90 p-6 shadow-2xl shadow-purple-900/60">
+      <button type="button" class="absolute right-4 top-4 rounded-full border border-white/30 px-3 py-1 text-sm text-white transition hover:bg-white hover:text-night" data-modal-close>
+        Fermer
+      </button>
+      <div data-modal-content class="space-y-6"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const carouselData = {};
+      document.querySelectorAll('script[id^="carousel-data-"]').forEach((script) => {
+        try {
+          const theme = script.id.replace('carousel-data-', '');
+          carouselData[theme] = JSON.parse(script.textContent);
+        } catch (error) {
+          console.error('Unable to parse carousel dataset', error);
+        }
+      });
+
+      const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+      };
+      const csrftoken = getCookie('csrftoken');
+
+      const renderCard = (item, theme, index) => {
+        const genres = (item.genres || []).join(', ');
+        const rating = item.rating ? `★ ${Number(item.rating).toFixed(1)}${item.vote_count ? ` (${item.vote_count})` : ''}` : '';
+        const release = item.release_year ? `${item.release_year}${genres ? ' • ' : ''}` : '';
+        const overview = item.overview ? item.overview : 'Résumé indisponible.';
+        const poster = item.poster_url
+          ? `<img src="${item.poster_url}" alt="Affiche de ${item.title}" class="h-80 w-full object-cover" />`
+          : `<div class=\"flex h-80 items-center justify-center bg-night/80 text-sm text-slate-400\">Affiche manquante</div>`;
+        return `
+          <button type="button" class="relative w-60 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 text-left shadow-xl transition hover:-translate-y-1 hover:shadow-purple-900/40" data-modal-trigger data-theme="${theme}" data-index="${index}">
+            ${poster}
+            <div class="space-y-2 p-4">
+              <h3 class="text-lg font-semibold text-amber-100">${item.title || 'Titre à venir'}</h3>
+              ${(release || genres) ? `<p class="text-xs text-slate-300">${release}${genres && !release ? genres : ''}${genres && release ? genres : ''}</p>` : ''}
+              ${rating ? `<p class="text-xs text-amber-200">${rating}</p>` : ''}
+              <p class="line-clamp-3 text-xs text-slate-200">${overview}</p>
+            </div>
+          </button>
+        `;
+      };
+
+      const renderModal = (item) => {
+        const poster = item.poster_url
+          ? `<img src="${item.poster_url}" alt="Affiche de ${item.title}" class="h-80 w-full max-w-xs rounded-2xl object-cover" />`
+          : '';
+        const directors = (item.directors || []).length ? `<p class="text-sm text-slate-200"><span class="font-semibold text-candy">Réalisation :</span> ${(item.directors || []).join(', ')}</p>` : '';
+        const cast = (item.cast || []).length ? `<p class="text-sm text-slate-200"><span class="font-semibold text-candy">Avec :</span> ${(item.cast || []).join(', ')}</p>` : '';
+        const genres = (item.genres || []).length ? `<p class="text-sm text-slate-300">${item.genres.join(' • ')}</p>` : '';
+        const runtime = item.runtime ? `<p class="text-sm text-slate-300">Durée : ${item.runtime} min</p>` : '';
+        const rating = item.rating ? `<p class="text-sm text-amber-200">★ ${Number(item.rating).toFixed(1)}${item.vote_count ? ` (${item.vote_count})` : ''}</p>` : '';
+        const similar = (item.similar || []).length
+          ? `<ul class="grid gap-2 text-sm text-slate-100">${item.similar.slice(0, 6).map((film) => `<li class="flex items-center gap-2"><span class="inline-flex h-2 w-2 rounded-full bg-candy"></span> ${film.title}${film.release_year ? ` (${film.release_year})` : ''}</li>`).join('')}</ul>`
+          : '<p class="text-sm text-slate-300">Pas encore de suggestions similaires.</p>';
+        const providers = (item.watch && item.watch.providers && item.watch.providers.length)
+          ? `<ul class="flex flex-wrap gap-2">${item.watch.providers.map((provider) => `<li class="rounded-full border border-white/15 px-3 py-1 text-xs text-white/80">${provider.name} — ${provider.type}</li>`).join('')}</ul>`
+          : '<p class="text-sm text-slate-300">Aucune plateforme renseignée pour le moment.</p>';
+        const providerLink = (item.watch && item.watch.link)
+          ? `<a href="${item.watch.link}" target="_blank" rel="noopener" class="text-sm text-candy underline">Consulter sur TMDb</a>`
+          : '';
+
+        return `
+          <article class="space-y-6">
+            <header class="flex flex-col gap-6 md:flex-row">
+              ${poster}
+              <div class="space-y-3">
+                <h2 class="text-3xl font-semibold text-amber-100">${item.title || 'Titre à confirmer'}</h2>
+                ${item.original_title ? `<p class="text-sm text-slate-300 italic">${item.original_title}</p>` : ''}
+                ${genres}
+                ${runtime}
+                ${rating}
+                <p class="text-sm text-slate-200">${item.overview || 'Résumé à venir.'}</p>
+                ${directors}
+                ${cast}
+              </div>
+            </header>
+            <section class="space-y-3">
+              <h3 class="text-lg font-semibold text-amber-200">Films similaires</h3>
+              ${similar}
+            </section>
+            <section class="space-y-3">
+              <h3 class="text-lg font-semibold text-amber-200">Où regarder</h3>
+              ${providers}
+              ${providerLink}
+            </section>
+          </article>
+        `;
+      };
+
+      const updateCarousel = (theme, data) => {
+        carouselData[theme] = data;
+        const section = document.querySelector(`[data-carousel="${theme}"]`);
+        if (!section) return;
+        const track = section.querySelector('[data-carousel-track]');
+        if (!track) return;
+        const fallbackBadge = section.querySelector('[data-carousel-fallback]');
+        if (fallbackBadge) {
+          fallbackBadge.classList.toggle('hidden', !data.fallback);
+        }
+        track.innerHTML = data.items && data.items.length
+          ? data.items.map((item, index) => renderCard(item, theme, index)).join('')
+          : '<div class="rounded-xl border border-white/10 bg-night/70 p-6 text-sm text-slate-300">Aucune recommandation disponible pour le moment.</div>';
+      };
+
+      const modal = document.getElementById('media-modal');
+      const modalContent = modal ? modal.querySelector('[data-modal-content]') : null;
+
+      const openModal = (item) => {
+        if (!modal || !modalContent) return;
+        modalContent.innerHTML = renderModal(item);
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('overflow-hidden');
+      };
+
+      const closeModal = () => {
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('overflow-hidden');
+      };
+
+      if (modal) {
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) {
+            closeModal();
+          }
+        });
+        const closeBtn = modal.querySelector('[data-modal-close]');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', closeModal);
+        }
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            closeModal();
+          }
+        });
+      }
+
+      document.body.addEventListener('click', (event) => {
+        const trigger = event.target.closest('[data-modal-trigger]');
+        if (!trigger) return;
+        const theme = trigger.getAttribute('data-theme');
+        const index = Number(trigger.getAttribute('data-index'));
+        const data = carouselData[theme];
+        if (!data || !data.items || !data.items[index]) return;
+        openModal(data.items[index]);
+      });
+
+      document.querySelectorAll('[data-carousel-scroll]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const direction = button.getAttribute('data-carousel-scroll');
+          const container = button.closest('[data-carousel]');
+          if (!container) return;
+          const track = container.querySelector('[data-carousel-track]');
+          if (!track) return;
+          const amount = track.clientWidth * 0.9;
+          track.scrollBy({ left: direction === 'next' ? amount : -amount, behavior: 'smooth' });
+        });
+      });
+
+      const refreshCarousel = async (theme, button) => {
+        if (!csrftoken || !theme) return;
+        button.disabled = true;
+        const originalLabel = button.textContent;
+        button.textContent = 'Raffraîchit…';
+        try {
+          const response = await fetch(`/api/feed/carousels/${encodeURIComponent(theme)}/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({ limit: 12 }),
+          });
+          if (!response.ok) {
+            throw new Error('refresh failed');
+          }
+          const payload = await response.json();
+          if (payload.carousel) {
+            updateCarousel(theme, payload.carousel);
+          }
+        } catch (error) {
+          console.error('Impossible de raffraîchir le carrousel', error);
+        } finally {
+          button.disabled = false;
+          button.textContent = originalLabel;
+        }
+      };
+
+      document.querySelectorAll('[data-carousel-refresh]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const theme = button.getAttribute('data-carousel-refresh');
+          refreshCarousel(theme, button);
+        });
+      });
+
+      const refreshAllButton = document.getElementById('refresh-all');
+      if (refreshAllButton) {
+        refreshAllButton.addEventListener('click', async () => {
+          const buttons = Array.from(document.querySelectorAll('[data-carousel-refresh]'));
+          for (const btn of buttons) {
+            await refreshCarousel(btn.getAttribute('data-carousel-refresh'), btn);
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

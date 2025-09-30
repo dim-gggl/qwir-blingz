@@ -4,12 +4,26 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
+load_dotenv()
+
+# Directory containing backend/ (project root lives one level up)
 BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = BASE_DIR.parent
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "development-secret-key")
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
-ALLOWED_HOSTS: list[str] = []
+allowed_hosts_raw = os.environ.get("ALLOWED_HOSTS", "")
+if isinstance(allowed_hosts_raw, str):
+    ALLOWED_HOSTS: list[str] = [
+        host.strip()
+        for host in allowed_hosts_raw.split(",")
+        if host.strip()
+    ] or ["localhost", "127.0.0.1", "testserver"]
+else:
+    ALLOWED_HOSTS = allowed_hosts_raw
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -40,7 +54,10 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [
+            PROJECT_ROOT / "templates",
+            BASE_DIR / "templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -60,8 +77,22 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.environ.get("DJANGO_DB_NAME", str(BASE_DIR / "db.sqlite3")),
-    }
+    },
 }
+
+if os.environ.get("DJANGO_USE_POSTGRES", "false").lower() == "true":
+    DATABASES["postgres"] = {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DJANGO_DB_NAME", "qwir_blingz_db"),
+        "USER": os.environ.get("DJANGO_DB_USER", "qwir_blingz_app"),
+        "PASSWORD": os.environ.get(
+            "DJANGO_DB_PASSWORD",
+            "a_random_unsecure_password_you_should_customize",
+        ),
+        "HOST": os.environ.get("DJANGO_DB_HOST", "localhost"),
+        "PORT": os.environ.get("DJANGO_DB_PORT", "5432"),
+    }
+
 
 AUTH_USER_MODEL = "accounts.User"
 

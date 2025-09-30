@@ -17,10 +17,10 @@
             grotesk: ['Space Grotesk', 'sans-serif'],
           },
           colors: {
-            night: '#0F172A',
-            nebula: '#7C3AED',
-            starlight: '#ECFEFF',
-            candy: '#F472B6',
+            night: '#07101B',
+            nebula: '#D65D3A',
+            starlight: '#FFFEF1',
+            candy: '#29D9C0',
           },
         }
       }
@@ -28,7 +28,7 @@
   </script>
   <style>
     body { font-family: 'Space Grotesk', sans-serif; }
-    .overlay-hidden { display: none; }
+    .overlay-hidden { display: none !important; visibility: hidden !important; }
   </style>
 </head>
 <body class="h-full text-starlight">
@@ -40,7 +40,7 @@
         disabled joy, Black + brown radiance, and every so-called misfit reroute the cosmos.
         Hydrate, breathe, and choose your vibe. We run on consent, memes, and revolutionary softness. Don’t worry: TERFs get launched into a black hole.
       </p>
-      <button id="enter-button" class="mt-8 rounded-full bg-candy px-6 py-2 text-night shadow-lg shadow-candy/40 transition hover:bg-amber-200 hover:text-night">
+      <button id="enter-button" type="button" class="mt-8 rounded-full bg-candy px-6 py-2 text-night shadow-lg shadow-candy/40 transition hover:bg-amber-200 hover:text-night">
         Step into the Qwirverse
       </button>
     </div>
@@ -102,67 +102,106 @@
   </main>
 
   <script>
-    const overlay = document.getElementById('welcome-overlay');
-    const enterBtn = document.getElementById('enter-button');
-    if (sessionStorage.getItem('qwir_overlay_dismissed') === 'true') {
-      overlay.classList.add('overlay-hidden');
-    }
-    enterBtn.addEventListener('click', () => {
-      overlay.classList.add('overlay-hidden');
-      sessionStorage.setItem('qwir_overlay_dismissed', 'true');
+    document.addEventListener('DOMContentLoaded', () => {
+      const overlay = document.getElementById('welcome-overlay');
+      const enterBtn = document.getElementById('enter-button');
+      const refreshButton = document.getElementById('refresh-film');
+      const filmCard = document.getElementById('film-card');
+      const overlayHiddenClass = 'overlay-hidden';
+      const overlayStorageKey = 'qwir_overlay_dismissed';
+
+      const storage = (() => {
+        try {
+          const store = window.sessionStorage;
+          store.setItem('__qwir_test__', '1');
+          store.removeItem('__qwir_test__');
+          return store;
+        } catch (err) {
+          return null;
+        }
+      })();
+
+      const hideOverlay = () => {
+        if (!overlay) {
+          return;
+        }
+        overlay.classList.add(overlayHiddenClass);
+        overlay.style.display = 'none';
+        overlay.style.visibility = 'hidden';
+        overlay.setAttribute('aria-hidden', 'true');
+      };
+
+      if (overlay && storage && storage.getItem(overlayStorageKey) === 'true') {
+        hideOverlay();
+      }
+
+      if (enterBtn && overlay) {
+        enterBtn.addEventListener('click', () => {
+          hideOverlay();
+          if (storage) {
+            try {
+              storage.setItem(overlayStorageKey, 'true');
+            } catch (err) {
+              /* storage unavailable; noop */
+            }
+          }
+        });
+      }
+
+      async function refreshFilm() {
+        if (!refreshButton || !filmCard) {
+          return;
+        }
+        refreshButton.disabled = true;
+        refreshButton.textContent = 'Summoning...';
+        try {
+          const response = await fetch('/api/teasers/queer-film/');
+          if (!response.ok) throw new Error('Unavailable');
+          const data = await response.json();
+          filmCard.innerHTML = renderFilmCard(data);
+        } catch (e) {
+          filmCard.innerHTML = `<p class="text-sm text-red-300">No cosmic reels right now. Try again in a bit.</p>`;
+        } finally {
+          refreshButton.disabled = false;
+          refreshButton.textContent = 'Shuffle';
+        }
+      }
+
+      function renderFilmCard(movie) {
+        if (!movie) {
+          return '<p class="text-sm text-slate-300">No film found. Try again soon.</p>';
+        }
+        const originalTitle = movie.original_title ? `<p class="text-sm text-slate-200 italic">${movie.original_title}</p>` : '';
+        const meta = [movie.origin_country, movie.original_language ? movie.original_language.toUpperCase() : null, movie.release_year].filter(Boolean).join(' • ');
+        const rating = movie.rating ? `<span class="rounded bg-amber-200/20 px-2 py-1 text-sm text-amber-200">★ ${movie.rating.toFixed(1)} (${movie.vote_count || 0})</span>` : '';
+        const directors = movie.directors && movie.directors.length ? `<p class="text-sm text-slate-200"><span class="font-semibold text-candy">${movie.directors.length > 1 ? 'Directors' : 'Director'}:</span> ${movie.directors.join(', ')}</p>` : '';
+        const cast = movie.cast && movie.cast.length ? `<p class="text-sm text-slate-200"><span class="font-semibold text-candy">Cast:</span> ${movie.cast.join(', ')}</p>` : '';
+        const poster = movie.poster_url ? `<img src="${movie.poster_url}" alt="Poster of ${movie.title}" class="h-72 w-full rounded-lg object-cover shadow-lg" />` : '';
+        const tmdbLink = movie.tmdb_url ? `<a href="${movie.tmdb_url}" target="_blank" rel="noopener" class="text-sm text-amber-200 underline">TMDb</a>` : '';
+        const imdbLink = movie.imdb_url ? `<a href="${movie.imdb_url}" target="_blank" rel="noopener" class="text-sm text-amber-200 underline">IMDb</a>` : '';
+        const links = [tmdbLink, imdbLink].filter(Boolean).join(' • ');
+
+        return `
+          <article class="space-y-4">
+            ${poster}
+            <div>
+              <h3 class="text-2xl font-semibold text-amber-200">${movie.title || 'Untitled queer gem'}</h3>
+              ${originalTitle}
+              ${meta ? `<p class="text-sm text-slate-200">${meta}</p>` : ''}
+              ${rating}
+              ${directors}
+              ${cast}
+              <p class="text-sm text-slate-100">${movie.overview || 'No synopsis found, but trust it is fab.'}</p>
+              ${links ? `<p class="pt-2 text-sm text-slate-300">${links}</p>` : ''}
+            </div>
+          </article>
+        `;
+      }
+
+      if (refreshButton) {
+        refreshButton.addEventListener('click', refreshFilm);
+      }
     });
-
-    const refreshButton = document.getElementById('refresh-film');
-    const filmCard = document.getElementById('film-card');
-
-    async function refreshFilm() {
-      refreshButton.disabled = true;
-      refreshButton.textContent = 'Summoning...';
-      try {
-        const response = await fetch('/api/teasers/queer-film/');
-        if (!response.ok) throw new Error('Unavailable');
-        const data = await response.json();
-        filmCard.innerHTML = renderFilmCard(data);
-      } catch (e) {
-        filmCard.innerHTML = `<p class="text-sm text-red-300">No cosmic reels right now. Try again in a bit.</p>`;
-      } finally {
-        refreshButton.disabled = false;
-        refreshButton.textContent = 'Shuffle';
-      }
-    }
-
-    function renderFilmCard(movie) {
-      if (!movie) {
-        return '<p class="text-sm text-slate-300">No film found. Try again soon.</p>';
-      }
-      const originalTitle = movie.original_title ? `<p class="text-sm text-slate-200 italic">${movie.original_title}</p>` : '';
-      const meta = [movie.origin_country, movie.original_language ? movie.original_language.toUpperCase() : null, movie.release_year].filter(Boolean).join(' • ');
-      const rating = movie.rating ? `<span class="rounded bg-amber-200/20 px-2 py-1 text-sm text-amber-200">★ ${movie.rating.toFixed(1)} (${movie.vote_count || 0})</span>` : '';
-      const directors = movie.directors && movie.directors.length ? `<p class="text-sm text-slate-200"><span class="font-semibold text-candy">${movie.directors.length > 1 ? 'Directors' : 'Director'}:</span> ${movie.directors.join(', ')}</p>` : '';
-      const cast = movie.cast && movie.cast.length ? `<p class="text-sm text-slate-200"><span class="font-semibold text-candy">Cast:</span> ${movie.cast.join(', ')}</p>` : '';
-      const poster = movie.poster_url ? `<img src="${movie.poster_url}" alt="Poster of ${movie.title}" class="h-72 w-full rounded-lg object-cover shadow-lg" />` : '';
-      const tmdbLink = movie.tmdb_url ? `<a href="${movie.tmdb_url}" target="_blank" rel="noopener" class="text-sm text-amber-200 underline">TMDb</a>` : '';
-      const imdbLink = movie.imdb_url ? `<a href="${movie.imdb_url}" target="_blank" rel="noopener" class="text-sm text-amber-200 underline">IMDb</a>` : '';
-      const links = [tmdbLink, imdbLink].filter(Boolean).join(' • ');
-
-      return `
-        <article class="space-y-4">
-          ${poster}
-          <div>
-            <h3 class="text-2xl font-semibold text-amber-200">${movie.title || 'Untitled queer gem'}</h3>
-            ${originalTitle}
-            ${meta ? `<p class="text-sm text-slate-200">${meta}</p>` : ''}
-            ${rating}
-            ${directors}
-            ${cast}
-            <p class="text-sm text-slate-100">${movie.overview || 'No synopsis found, but trust it is fab.'}</p>
-            ${links ? `<p class="pt-2 text-sm text-slate-300">${links}</p>` : ''}
-          </div>
-        </article>
-      `;
-    }
-
-    refreshButton.addEventListener('click', refreshFilm);
   </script>
 </body>
 </html>
